@@ -1,6 +1,6 @@
 /* ---------- ESTILOS BASE ---------- */
 * {
-    user-select: none;
+  user-select: none;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -134,6 +134,10 @@ h1, h2, h3 {
   position: relative;
   width: 80%;
   max-width: 900px;
+  /* Fixed viewing frame so video keeps same visible size regardless of its intrinsic aspect */
+  height: 500px;
+  /* CSS variable to control slight zoom/scale of the video: 1 = normal, <1 = zoom out, >1 = zoom in */
+  --video-scale: 0.98;
   margin: 2rem auto;
   border-radius: 20px;
   overflow: hidden;
@@ -149,10 +153,31 @@ h1, h2, h3 {
 
 /* ==== VIDEO ==== */
 .video-container video {
+  /* Fill the fixed frame and crop when necessary so the visible size stays constant.
+     object-fit: cover preserves aspect ratio and ensures the frame is fully filled. */
   width: 100%;
-  border-radius: 20px;
+  height: 100%;
+  object-fit: contain;
+  /* control what area of the video is visible (center by default) */
+  object-position: center center;
+  /* small scale tweak to reduce/increase perceived zoom; adjustable via --video-scale */
+  transform: scale(var(--video-scale));
+  /* ensure video is above the decorative background layer */
+  position: relative;
+  z-index: 1;
+  /* remove inner radius so container handles rounding (avoids double border-radius artifacts) */
+  border-radius: 0;
   display: block;
-  transition: filter 0.3s ease;
+  transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+/* decorative background behind the video so small scale reveals a neutral color */
+.video-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #000; /* change to a different color if you prefer lighter edges */
+  z-index: 0;
 }
 
 .video-container:hover video {
@@ -385,6 +410,11 @@ iframe {
     width: 45%;
     height: 160px;
   }
+
+  /* Reduce video frame on medium screens */
+  .video-container {
+    height: 420px;
+  }
 }
 
 @media (max-width: 600px) {
@@ -395,6 +425,18 @@ iframe {
 
   .mapa p {
     font-size: 0.95rem;
+  }
+
+  /* Reduce video frame on small screens */
+  .video-container {
+    height: 320px;
+  }
+}
+
+@media (max-width: 400px) {
+  /* Extra small phones */
+  .video-container {
+    height: 260px;
   }
 }
 
